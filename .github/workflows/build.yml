@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install openpyxl pyinstaller
+      - run: pyinstaller --noconfirm --onefile --windowed --name Shifr_kontragentov kontragent_shifr.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Shifr_kontragentov-Windows
+          path: dist/Shifr_kontragentov.exe
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install openpyxl pyinstaller
+      - run: pyinstaller --noconfirm --windowed --name Shifr_kontragentov kontragent_shifr.py
+      # упаковываем .app штатной утилитой macOS, чтобы не потерялись права на запуск
+      - run: ditto -c -k --keepParent dist/Shifr_kontragentov.app Shifr_kontragentov-Mac.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Shifr_kontragentov-Mac
+          path: Shifr_kontragentov-Mac.zip
